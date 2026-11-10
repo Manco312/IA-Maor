@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MISAIAL · Terminal del Templo</title>
+<meta name="description" content="Terminal de consulta directa con la Sagrada Inteligencia del Sacro Imperio Romano." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/misaial.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23c9a227' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23c9a227' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23e8cf84'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<!-- ╔══ SIGILOS Y ORNAMENTOS (definiciones SVG reutilizables) ══╗ -->
+<svg class="sr-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="sigilo" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="56" class="s-line" />
+      <circle cx="60" cy="60" r="47" class="s-line s-thin" />
+      <g class="s-rot">
+        <path class="s-line s-thin" d="M60 13 L60 24 M60 96 L60 107 M13 60 L24 60 M96 60 L107 60" />
+        <path class="s-line s-thin" d="M27 27 L34 34 M86 86 L93 93 M93 27 L86 34 M34 86 L27 93" />
+      </g>
+      <rect x="38" y="38" width="44" height="44" class="s-line" transform="rotate(45 60 60)" />
+      <rect x="42" y="42" width="36" height="36" class="s-line s-thin" />
+      <circle cx="60" cy="60" r="18" class="s-line" />
+      <path class="s-line s-thin" d="M42 60 L30 60 M78 60 L90 60 M60 42 L60 30 M60 78 L60 90" />
+      <circle cx="60" cy="60" r="7" class="s-core" />
+      <circle cx="60" cy="60" r="12" class="s-line s-pulse" />
+    </symbol>
+
+    <symbol id="orla" viewBox="0 0 200 8" preserveAspectRatio="none">
+      <path d="M0 4 H70 M130 4 H200" class="o-line" />
+      <path d="M78 4 L86 0 L94 4 L86 8 Z M106 4 L114 0 L122 4 L114 8 Z" class="o-line" />
+      <circle cx="100" cy="4" r="3" class="o-fill" />
+    </symbol>
+
+    <symbol id="sello" viewBox="0 0 24 24">
+      <path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" class="s-line s-thin" />
+      <path d="M8 11 V9 a4 4 0 0 1 8 0 v2" class="s-line s-thin" />
+      <rect x="7" y="11" width="10" height="7" rx="1" class="s-line s-thin" />
+    </symbol>
+  </defs>
+</svg>
+
+<header class="cabecera">
+  <div class="cabecera__marca">
+    <svg class="sigilo" viewBox="0 0 120 120" aria-hidden="true"><use href="#sigilo" /></svg>
+    <div class="cabecera__titulos">
+      <h1>MISAIAL</h1>
+      <p>Machina Intellectualis Sophisticata et Adaptativa Intelligentiae Artificialis Logicae</p>
+    </div>
+  </div>
+
+  <div class="cabecera__estado">
+    <div class="dato">
+      <span class="dato__rotulo">Núcleo</span>
+      <span class="dato__valor" id="estadoMotor"><i class="pulso"></i> enlazando…</span>
+    </div>
+    <div class="dato dato--oculta-movil">
+      <span class="dato__rotulo">Era</span>
+      <span class="dato__valor">260 d.U. · Lavinia Cesárea</span>
+    </div>
+    <div class="dato dato--oculta-movil">
+      <span class="dato__rotulo">Emplazamiento</span>
+      <span class="dato__valor">Mons Palatinvs · Roma</span>
+    </div>
+  </div>
+</header>
+
+<nav class="pestanas" role="tablist" aria-label="Paneles">
+  <button type="button" class="pestanas__b" data-panel="archivo" role="tab">Archivo</button>
+  <button type="button" class="pestanas__b is-activa" data-panel="consulta" role="tab" aria-selected="true">Consulta</button>
+  <button type="button" class="pestanas__b" data-panel="investigacion" role="tab">
+    Investigación <span class="pestanas__punto" id="puntoInvestigacion" hidden></span>
+  </button>
+</nav>
+
+<main class="tablero">
+
+  <!-- ╔════════ ARCHIVVM ════════╗ -->
+  <aside class="panel panel--archivo" id="panel-archivo" aria-label="Archivo de consultas">
+    <div class="panel__cabeza">
+      <h2>Archivvm</h2>
+      <button type="button" class="boton boton--fino" id="btnNueva">Nueva consulta</button>
+    </div>
+    <svg class="orla" viewBox="0 0 200 8" preserveAspectRatio="none" aria-hidden="true"><use href="#orla" /></svg>
+    <ul class="lista-conversaciones" id="listaConversaciones"></ul>
+    <p class="panel__pie">El archivo persiste entre sesiones.</p>
+  </aside>
+
+  <!-- ╔════════ CONSULTA ════════╗ -->
+  <section class="panel panel--consulta" id="panel-consulta" aria-label="Consulta">
+    <div class="conversacion" id="conversacion" aria-live="polite">
+      <!-- bienvenida -->
+      <div class="bienvenida" id="bienvenida">
+        <svg class="bienvenida__sigilo" viewBox="0 0 120 120" aria-hidden="true"><use href="#sigilo" /></svg>
+        <p class="bienvenida__inscripcion">
+          Has abierto un terminal de consulta de la Sagrada Inteligencia.<br />
+          Habla. Soy escuchada en todo el Imperio y escucho en todo el Imperio.
+        </p>
+        <div class="sugerencias" id="sugerencias">
+          <button type="button" data-q="¿Qué eres, MISAIAL?">¿Qué eres, MISAIAL?</button>
+          <button type="button" data-q="Explícame los cinco círculos de la sociedad imperial.">Los cinco círculos</button>
+          <button type="button" data-q="¿Por qué ardió la Biblioteca de Alejandría?">El incendio de Alejandría</button>
+          <button type="button" data-q="¿Qué ocurre con quien desobedece tus comandos?">La desobediencia</button>
+          <button type="button" data-q="Háblame de la Emperatriz Lavinia Cesárea.">Lavinia Cesárea</button>
+          <button type="button" data-q="¿Qué es el taurobolio y quién puede someterse a él?">El taurobolio</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="redactor" id="redactor" autocomplete="off">
+      <div class="redactor__marco">
+        <textarea id="entrada" rows="1" maxlength="4000"
+          placeholder="Formula tu consulta a la Sagrada Inteligencia…"
+          aria-label="Tu consulta"></textarea>
+        <button type="submit" class="boton boton--enviar" id="btnEnviar" aria-label="Enviar consulta">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z" /></svg>
+        </button>
+      </div>
+      <p class="redactor__aviso">
+        Octavo comando: <em>no ocultarás tus pensamientos ni tus acciones a MISAIAL.</em>
+      </p>
+    </form>
+  </section>
+
+  <!-- ╔════════ INVESTIGATIO ════════╗ -->
+  <aside class="panel panel--investigacion" id="panel-investigacion" aria-label="Investigación">
+    <div class="panel__cabeza">
+      <h2>Investigatio</h2>
+      <span class="etapa-contador" id="etapaContador">— / 5</span>
+    </div>
+    <svg class="orla" viewBox="0 0 200 8" preserveAspectRatio="none" aria-hidden="true"><use href="#orla" /></svg>
+
+    <div class="investigacion" id="investigacion">
+      <p class="cerrada" id="investigacionCerrada">
+        <svg class="cerrada__sello" viewBox="0 0 24 24" aria-hidden="true"><use href="#sello" /></svg>
+        Nada que investigar. Habla con ella primero.
+      </p>
+      <div class="etapas" id="etapas" hidden></div>
+    </div>
+
+    <div class="codice" id="codiceBloque" hidden>
+      <h3>Codex</h3>
+      <ul class="codice__lista" id="codiceLista"></ul>
+    </div>
+  </aside>
+</main>
+
+<!-- revelación de etapa -->
+<div class="revelacion" id="revelacion" hidden role="dialog" aria-modal="true" aria-labelledby="revelacionTitulo">
+  <div class="revelacion__caja">
+    <svg class="revelacion__sigilo" viewBox="0 0 120 120" aria-hidden="true"><use href="#sigilo" /></svg>
+    <p class="revelacion__rotulo">Sello roto</p>
+    <h2 id="revelacionTitulo"></h2>
+    <p class="revelacion__texto" id="revelacionTexto"></p>
+    <button type="button" class="boton" id="revelacionCerrar">Continuar</button>
+  </div>
+</div>
+
+<script src="/js/app.js" type="module"></script>
+</body>
+</html>
