@@ -35,6 +35,9 @@ const estado = {
   listaConv: null,
   etapasAbiertas: new Set(),
   codiceVistos: new Set(),
+  // Hay un hallazgo nuevo que el usuario todavía no ha mirado en el panel.
+  // En móvil el panel está en otra pestaña, así que necesita el aviso.
+  hallazgoSinVer: false,
 };
 
 // ────────────────────────────── red ──────────────────────────────
@@ -257,6 +260,12 @@ async function consultar({ mensaje, pregunta }) {
 
 function aplicarFin(payload) {
   if (payload.conversaciones) pintarConversaciones(payload.conversaciones);
+
+  // Se marca ANTES de pintar: pintarInvestigacion lee la bandera para decidir
+  // si enciende el punto de aviso de la pestaña móvil. Se apaga al abrir el
+  // panel (ver irA). En escritorio las pestañas no se ven y da igual.
+  if (payload.avance?.codices?.length) estado.hallazgoSinVer = true;
+
   if (payload.investigacion) pintarInvestigacion(payload.investigacion);
   if (payload.avance?.nuevaEtapa) {
     mostrarRevelacion(payload.avance.nuevaEtapa);
@@ -353,7 +362,10 @@ function nuevaConsulta() {
 function pintarInvestigacion(inv) {
   estado.investigacion = inv;
 
-  el.etapaContador.textContent = inv.abierta ? `${inv.etapa} / ${inv.etapasTotales}` : '— / 5';
+  // El contador cuenta hallazgos, no etapas: es lo que de verdad mide tu avance.
+  el.etapaContador.textContent = inv.abierta
+    ? `${inv.descubiertas} / ${inv.totalSellos}`
+    : '— / —';
 
   if (!inv.abierta) {
     el.investigacionCerrada.hidden = false;
@@ -418,43 +430,35 @@ function pintarInvestigacion(inv) {
       div.append(desc);
     }
 
+    // Registro de lo descubierto, no un menú. Nada de esto se puede pulsar: a
+    // los sellos se llega hablando con ella, y aquí solo queda la anotación.
     const ul = document.createElement('ul');
     ul.className = 'preguntas';
 
     for (const p of etapa.preguntas) {
       const li = document.createElement('li');
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'preg';
+      const fila = document.createElement('div');
+      fila.className = 'preg';
 
       const rotulo = document.createElement('span');
       rotulo.className = 'preg__rotulo';
       const texto = document.createElement('span');
       texto.className = 'preg__texto';
 
-      if (p.estado === 'respondida') {
-        b.classList.add('preg--respondida');
-        b.disabled = true;
+      if (p.estado === 'descubierta') {
+        fila.classList.add('preg--descubierta');
         rotulo.textContent = p.titulo;
-        texto.textContent = p.pregunta;
-      } else if (p.estado === 'disponible') {
-        rotulo.textContent = p.titulo;
-        texto.textContent = p.pregunta;
-        b.addEventListener('click', () => {
-          if (estado.ocupado) return;
-          irA('consulta');
-          consultar({ pregunta: p.id });
-        });
+        // La pregunta que lo abrió queda como cita: es el hallazgo, no una pista.
+        texto.textContent = `«${p.pregunta}»`;
       } else {
-        b.classList.add('preg--sellada');
-        b.disabled = true;
+        fila.classList.add('preg--sellada');
         rotulo.textContent = 'sellado';
         texto.textContent = 'Lorem damnatio memoriae imperii arcanum nondum revelatum est';
-        b.title = 'Sello activo.';
+        fila.title = 'Un sello que aún no has abierto.';
       }
 
-      b.append(rotulo, texto);
-      li.append(b);
+      fila.append(rotulo, texto);
+      li.append(fila);
       ul.append(li);
     }
 
@@ -489,11 +493,9 @@ function pintarInvestigacion(inv) {
     el.codiceBloque.hidden = true;
   }
 
-  // Punto de aviso en la pestaña móvil
-  const hayDisponibles = inv.etapas.some((e) =>
-    e.preguntas.some((p) => p.estado === 'disponible')
-  );
-  el.puntoInvestigacion.hidden = !hayDisponibles;
+  // Punto de aviso en la pestaña móvil: ya no anuncia "tienes preguntas que
+  // lanzar" —eso era el menú— sino "acabas de descubrir algo, míralo".
+  el.puntoInvestigacion.hidden = !estado.hallazgoSinVer;
 }
 
 function mostrarRevelacion(etapa) {
@@ -514,6 +516,10 @@ el.revelacion.addEventListener('click', (e) => {
 // ──────────────────────── pestañas (móvil) ────────────────────────
 
 function irA(panel) {
+  if (panel === 'investigacion') {
+    estado.hallazgoSinVer = false;
+    el.puntoInvestigacion.hidden = true;
+  }
   for (const b of document.querySelectorAll('.pestanas__b')) {
     const activa = b.dataset.panel === panel;
     b.classList.toggle('is-activa', activa);

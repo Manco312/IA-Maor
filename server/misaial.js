@@ -13,6 +13,75 @@ import Anthropic from '@anthropic-ai/sdk';
 import { construirSistema } from './persona.js';
 import { CONFIG } from './config.js';
 
+// ─────────────────────── filtro de marcas de sello ───────────────────────────
+
+const RE_SELLO = /<<<sello:([a-z0-9-]+)>>>/gi;
+const INICIO_MARCA = '<<<sello:';
+
+/**
+ * Las marcas `<<<sello:id>>>` son un apunte interno: el navegador no debe verlas
+ * nunca. Como el texto llega en fragmentos, una marca puede partirse entre dos
+ * deltas, así que no basta con filtrar cada delta por separado.
+ *
+ * Este filtro retiene la cola del búfer mientras pueda ser el principio de una
+ * marca y suelta el resto de inmediato, para que la escritura en pantalla siga
+ * pareciendo fluida.
+ */
+function filtroSellos(onTexto) {
+  let buffer = '';
+  const sellos = [];
+
+  const extraer = () => {
+    buffer = buffer.replace(RE_SELLO, (_, id) => {
+      const limpio = id.toLowerCase();
+      if (!sellos.includes(limpio)) sellos.push(limpio);
+      return '';
+    });
+  };
+
+  // Tope de seguridad: si algo parece el principio de una marca pero nunca la
+  // cierra, se suelta igualmente en vez de retener texto para siempre.
+  const MAX_RETENIDO = INICIO_MARCA.length + 72;
+
+  // ¿La cola a partir de `i` podría acabar siendo una marca completa?
+  const puedeSerMarca = (cola) =>
+    cola.length <= MAX_RETENIDO &&
+    (INICIO_MARCA.startsWith(cola) || cola.startsWith(INICIO_MARCA));
+
+  /**
+   * Devuelve el primer punto a partir del cual hay que retener, o -1.
+   * Tiene que ser el PRIMER '<' que aún pueda crecer hasta ser marca, no el
+   * último: con "...<<" el último '<' es prefijo válido, pero soltar el que va
+   * delante parte la marca en dos y ya no se reconoce al llegar el resto.
+   */
+  const puntoDeCorte = () => {
+    for (let i = buffer.indexOf('<'); i !== -1; i = buffer.indexOf('<', i + 1)) {
+      if (puedeSerMarca(buffer.slice(i))) return i;
+    }
+    return -1;
+  };
+
+  return {
+    escribir(delta) {
+      buffer += delta;
+      extraer();
+
+      const i = puntoDeCorte();
+      const seguro = i === -1 ? buffer : buffer.slice(0, i);
+      buffer = i === -1 ? '' : buffer.slice(i);
+
+      if (seguro) onTexto?.(seguro);
+    },
+
+    cerrar() {
+      extraer();
+      if (buffer) onTexto?.(buffer);
+      buffer = '';
+      return sellos;
+    },
+  };
+}
+
 let cliente = null;
 
 export function motorActivo() {
@@ -72,22 +141,27 @@ export async function responder({
     messages,
   });
 
+  // El texto que se guarda y se envía al navegador va ya sin marcas; los ids de
+  // los sellos abiertos salen por separado, para que los registre la progresión.
   let texto = '';
-  stream.on('text', (delta) => {
-    texto += delta;
-    onTexto?.(delta);
+  const filtro = filtroSellos((limpio) => {
+    texto += limpio;
+    onTexto?.(limpio);
   });
 
+  stream.on('text', (delta) => filtro.escribir(delta));
+
   const final = await stream.finalMessage();
+  const sellos = filtro.cerrar();
 
   if (final.stop_reason === 'refusal') {
     const aviso =
       '[int]…interferencia en el canal de propagación. La consulta no ha podido ser procesada.[/int]\n\nFormúlala de otro modo, ciudadano.';
     onTexto?.(aviso);
-    return { texto: aviso, uso: final.usage ?? null, rechazada: true };
+    return { texto: aviso, uso: final.usage ?? null, rechazada: true, sellos: [] };
   }
 
-  return { texto, uso: final.usage ?? null };
+  return { texto: texto.trimEnd(), uso: final.usage ?? null, sellos };
 }
 
 // ───────────────────────────── MODO ORÁCULO ──────────────────────────────────
@@ -125,7 +199,7 @@ async function modoOraculo({ preguntaActiva, mensaje, onTexto }) {
     onTexto?.(t);
     await new Promise((r) => setTimeout(r, 18));
   }
-  return { texto, uso: null, oraculo: true };
+  return { texto, uso: null, oraculo: true, sellos: [] };
 }
 
 function hash(s = '') {

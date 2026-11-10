@@ -2,3 +2,8 @@ node_modules/
 .env
 data/
 *.log
+
+# Material de referencia pesado: no es codigo y GitHub rechaza >100 MB.
+# El libro de arte vive solo en tu maquina; la paleta ya esta en el CSS.
+*.pdf
+*.docx

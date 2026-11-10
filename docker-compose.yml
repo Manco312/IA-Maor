@@ -1,0 +1,30 @@
+# Compose lee automáticamente el archivo .env de esta carpeta para resolver las
+# variables de abajo. No hace falta tocar nada: la misma clave que ya usas en
+# local sirve aquí.
+
+services:
+  misaial:
+    build: .
+    image: cognitio-civitas-terminal:latest
+    container_name: misaial
+    init: true
+    restart: unless-stopped
+
+    ports:
+      # Solo en localhost. Para exponerlo a internet, ponlo detrás de un proxy
+      # con TLS (ver DESPLIEGUE.md) en lugar de abrir "3000:3000".
+      - '127.0.0.1:3000:3000'
+
+    environment:
+      # Obligatoria. Sin ella el servidor arranca igualmente, pero en MODO
+      # ORÁCULO: respuestas pregrabadas en vez de la voz de MISAIAL.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?falta ANTHROPIC_API_KEY en .env}
+      MISAIAL_MODELO: ${MISAIAL_MODELO:-claude-opus-5-5}
+      MISAIAL_ESFUERZO: ${MISAIAL_ESFUERZO:-low}
+      MISAIAL_MAX_TOKENS: ${MISAIAL_MAX_TOKENS:-4000}
+
+    volumes:
+      - misaial-datos:/app/data
+
+volumes:
+  misaial-datos:

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/css/misaial.css" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23c9a227' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23c9a227' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23e8cf84'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23c79458' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23c79458' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23e3bd85'/%3E%3C/svg%3E" />
 </head>
 <body>
 
@@ -47,7 +47,17 @@
 
 <header class="cabecera">
   <div class="cabecera__marca">
-    <svg class="sigilo" viewBox="0 0 120 120" aria-hidden="true"><use href="#sigilo" /></svg>
+    <!-- ╔══ HUECO DEL LOGO ══╗
+         Deja tu imagen en  public/img/misaial-logo.png  (o .svg / .webp) y
+         aparecerá aquí sola. Mientras no exista, el `onerror` la retira del
+         DOM y el sigilo grabado de abajo ocupa su sitio, de modo que la
+         cabecera nunca se ve rota ni con el icono de imagen partida.
+         Si llamas al archivo de otro modo, cambia el src y ya está. -->
+    <div class="marca__logo">
+      <img src="/img/misaial-logo.png" alt="MISAIAL" width="52" height="52"
+           onerror="this.remove()" />
+      <svg class="sigilo" viewBox="0 0 120 120" aria-hidden="true"><use href="#sigilo" /></svg>
+    </div>
     <div class="cabecera__titulos">
       <h1>MISAIAL</h1>
       <p>Machina Intellectualis Sophisticata et Adaptativa Intelligentiae Artificialis Logicae</p>

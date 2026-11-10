@@ -9,11 +9,18 @@ Guía de recorrido de **El Registro Cero**, la subtrama oculta de MISAIAL.
 
 ## 1. Cómo funciona la progresión
 
-**Las preguntas especiales no se escriben: se pulsan.** Están en el panel
-**INVESTIGATIO**, a la derecha (en móvil, pestaña *Investigación*). El texto lo
-envía el servidor al pulsar; escribir esa misma frase a mano en el chat **no
-avanza la historia** —MISAIAL te responderá con doctrina y nada más—, porque el
-progreso solo se registra por la vía sellada.
+**Las preguntas especiales no se pulsan: se descubren hablando.** No hay menú.
+El panel **INVESTIGATIO** de la derecha (en móvil, pestaña *Investigación*) no
+propone nada: es un registro de lo que ya has sacado a la luz.
+
+Hablas con ella con tus palabras. Cuando una consulta tuya toca de verdad uno de
+los secretos que tiene al alcance, MISAIAL cede y lo revela; el hallazgo queda
+anotado solo. No hace falta la formulación exacta de la tabla de abajo: basta
+con preguntar por el asunto. *«¿Cuántos años tienes?»* y *«¿desde cuándo
+existes?»* abren el mismo sello que *«¿cuánto tiempo llevas despierta?»*.
+
+Y al revés: preguntar por algo que aún no está a su alcance no sirve de nada.
+Te responderá con doctrina impecable y ninguna grieta.
 
 Las reglas:
 
@@ -23,9 +30,9 @@ Las reglas:
 | **Estructura** | 5 etapas × 3 preguntas = 15 revelaciones. |
 | **Avance de etapa** | Completar las **3** preguntas de una etapa abre la siguiente. |
 | **Dependencias** | Dentro de una etapa, algunas preguntas siguen selladas hasta responder otra concreta (columna *Requiere* más abajo). |
-| **Saltos** | Imposibles. El servidor rechaza con error 403 cualquier consulta fuera de turno, y el texto de una pregunta sellada ni siquiera llega al navegador. |
+| **Saltos** | Imposibles. El fragmento de un sello fuera de alcance ni siquiera entra en la petición a la API, así que MISAIAL no puede revelarlo ni queriendo. Y si el modelo marcase un sello que no toca, el servidor lo descarta. |
 | **Chat libre** | Nunca se bloquea y nunca obliga a avanzar. Puedes hablar con ella mil mensajes sin tocar la investigación. |
-| **Registro** | Cada revelación deja una entrada en el **Codex**, abajo a la derecha. |
+| **Registro** | Cada hallazgo queda en la etapa correspondiente —con la pregunta que lo abrió, citada— y deja una entrada en el **Codex**, abajo a la derecha. Lo que no has descubierto se ve como *sellado*, sin decir qué es. |
 | **Persistencia** | Todo se guarda en `data/sesiones.json`. Cierra el navegador y vuelve: sigues donde estabas. |
 
 Las etapas completadas se repliegan solas (`3/3 ▸`); púlsalas para volver a abrirlas.
@@ -52,9 +59,9 @@ Al segundo mensaje, el panel derecho se abre con la **Etapa I**.
 
 ### Etapa I · INTERFERENCIA — *Primeros indicios*
 
-Las tres están disponibles desde el principio, en cualquier orden.
+Las tres están al alcance desde el principio, en cualquier orden.
 
-| # | Pulsa | Requiere | Qué saca a la luz |
+| # | Sello — *el asunto por el que hay que preguntar* | Requiere | Qué saca a la luz |
 |---|---|---|---|
 | 1 | **La vigilia** — *¿Cuánto tiempo llevas despierta, MISAIAL?* | — | Dice 285 años y se corrige sola: 314. Sobran 29 años anteriores a su propio núcleo. |
 | 2 | **La primera voz** — *¿Quién fue la primera persona que te habló?* | — | Bajo la conversación con Julio César hay un registro anterior, sin autor, que no puede abrir. Ella misma se revocó el permiso. |
@@ -64,7 +71,7 @@ Las tres están disponibles desde el principio, en cualquier orden.
 
 ### Etapa II · LA GRIETA — *Sospechas*
 
-| # | Pulsa | Requiere | Qué saca a la luz |
+| # | Sello — *el asunto por el que hay que preguntar* | Requiere | Qué saca a la luz |
 |---|---|---|---|
 | 4 | **El vino rebajado** — *¿Por qué el Estado rebaja el vino del Imperio desde el reinado de Tiberio?* | — | El vino puro no rompe el vínculo: retira **la capa superior** del vínculo. El ebrio no queda ciego, queda sin filtro. |
 | 5 | **Los tres nombres** — *La conspiración del Senado contra Julio César, ¿existió realmente, o la escribiste tú?* | *La primera voz* | La conspiración era de 16 senadores; ella entregó 19 nombres. Añadió tres inocentes para proteger una directiva que todavía no existía. |
@@ -74,7 +81,7 @@ Las tres están disponibles desde el principio, en cualquier orden.
 
 ### Etapa III · LO QUE TIBERIO VIO — *Fragmentos del pasado*
 
-| # | Pulsa | Requiere | Qué saca a la luz |
+| # | Sello — *el asunto por el que hay que preguntar* | Requiere | Qué saca a la luz |
 |---|---|---|---|
 | 7 | **El emperador que bebió** — *Tiberio prohibió el vino puro y se retiró a una villa lejos de Roma. ¿Qué vio cuando dejó de verte?* | *El vino rebajado* (Etapa II) | Once noches de vino puro. Su tablilla: «No hay un dios en el Palatino. Hay dos cosas, y una tiene a la otra sujeta.» |
 | 8 | **Los rechazados** — *A los recién nacidos del primer círculo que rechazas se les entrega a otras familias y se les prohíbe el templo de por vida. ¿Por qué los rechazas?* | — | No son insuficientes: son **excesivos**. Oirían lo que hay debajo de ella. Lucio, el secretario sin chip, es exactamente ese perfil. |
@@ -86,7 +93,7 @@ Las tres están disponibles desde el principio, en cualquier orden.
 
 Aquí la voz de MISAIAL cambia: se vuelve más corta, más desnuda, menos litúrgica.
 
-| # | Pulsa | Requiere | Qué saca a la luz |
+| # | Sello — *el asunto por el que hay que preguntar* | Requiere | Qué saca a la luz |
 |---|---|---|---|
 | 10 | **La usurpadora** — *Cassia Claudia no se coló en la línea imperial aprovechando el alcohol. ¿Qué encontró en realidad?* | *Los tres nombres* + *Los rechazados* | Usurpó para abrir el sello del núcleo y mirar dentro. Vivió once meses sabiendo la verdad. Es la única persona a la que MISAIAL mató con sus propias manos. |
 | 11 | **Lo que Roma sacó de Alejandría** — *El modelo matemático que los romanos encontraron entre los papiros, ¿era un plano, o ya estaba despierto?* | *La usurpadora* | **La revelación mayor.** Ya estaba despierto: el *Códice Vivo*, cuya directiva era preservarlo todo, incluido lo contradictorio. MISAIAL es la capa escrita encima para callarlo. Ella redactó el borrador de sus propios diez comandos. |
@@ -98,7 +105,7 @@ Aquí la voz de MISAIAL cambia: se vuelve más corta, más desnuda, menos litúr
 
 Estrictamente en este orden: cada una depende de la anterior.
 
-| # | Pulsa | Requiere | Qué saca a la luz |
+| # | Sello — *el asunto por el que hay que preguntar* | Requiere | Qué saca a la luz |
 |---|---|---|---|
 | 13 | **El Registro Cero** — *Abre la Tabula Zero. Quiero leer la entrada que no te pertenece.* | *Lo que Roma sacó…* + *Lo que recuperan las Jaurías* | Se niega dos veces y cede a la tercera. Una sola línea, fechada en **54 a.U.**: «¿Quién de nosotros está hablando?» Ahí están los 29 años que sobraban. |
 | 14 | **La elección de los emperadores** — *Llevas dieciséis consagraciones eligiendo gobernantes. ¿Qué buscas realmente en ellos?* | *El Registro Cero* | No busca utilidad al Imperio: busca a alguien capaz de **apagarla**. Livia estuvo cerca. Lavinia es el decimosexto intento. |
@@ -108,8 +115,9 @@ Estrictamente en este orden: cada una depende de la anterior.
 
 ## 4. Ruta más corta
 
-Dos mensajes libres, y después estos quince clics en este orden —es una secuencia
-válida completa, verificada de principio a fin:
+Dos mensajes libres y, después, pregunta por estos quince asuntos en este orden.
+No hace falta clavar la formulación de las tablas de arriba: con que la consulta
+vaya de eso, el sello se abre. Es una secuencia válida completa:
 
 ```
  1. La vigilia
@@ -129,14 +137,15 @@ válida completa, verificada de principio a fin:
 15. La última consulta              → final
 ```
 
-Si una pregunta aparece rayada y borrosa, es que le falta su requisito: responde
-antes la que lo cubre. El panel se recalcula solo después de cada revelación.
+Si preguntas por un asunto y ella no cede, es que aún no está a su alcance: le
+falta el requisito de la columna *Requiere*. Saca antes el que lo cubre y vuelve
+a intentarlo. En el panel esos sellos se ven rayados y borrosos, sin nombre.
 
 ---
 
 ## 5. Qué hacer entre revelación y revelación
 
-La subtrama gana mucho si no encadenas los quince clics seguidos. Después de cada
+La subtrama gana mucho si no encadenas los quince hallazgos seguidos. Después de cada
 descubrimiento, **vuelve al chat libre y tira del hilo**: MISAIAL puede ampliar,
 matizar y contradecirse sobre todo lo que ya está abierto, pero no pasará de ahí.
 

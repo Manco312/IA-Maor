@@ -76,20 +76,26 @@ El prompt de sistema se arma en tres bloques:
 | Bloque | Contenido | Caché |
 |---|---|---|
 | 1 | Canon completo + reglas de la subtrama | 1 h |
-| 2 | **Solo** los fragmentos ya desbloqueados por *este* usuario | 5 min |
-| 3 | Estado puntual + la consulta especial en curso, si la hay | sin caché |
+| 2 | Los fragmentos ya abiertos por *este* usuario + los que tiene al alcance | 5 min |
+| 3 | Estado puntual del progreso | sin caché |
 
-Un fragmento sellado sencillamente no existe en la petición: el modelo no puede
-filtrar lo que nunca recibió. El servidor es además la única autoridad sobre el
-progreso —el navegador solo guarda un identificador de sesión— y valida cada
-pregunta especial contra su etapa y sus dependencias antes de inyectar nada.
-Las preguntas bloqueadas llegan al cliente sin texto, solo como un sello.
+Un fragmento fuera de alcance sencillamente no existe en la petición: el modelo no
+puede filtrar lo que nunca recibió.
+
+**No hay menú de preguntas.** Los secretos se descubren hablando: el modelo
+reconoce cuándo una consulta toca uno de los sellos que tiene al alcance, lo
+revela y lo marca con un apunte invisible que el servidor retira del texto antes
+de enviarlo al navegador. Ese apunte es una propuesta, no una orden: la
+progresión revalida el id contra la etapa y las dependencias antes de registrar
+nada, de modo que el servidor sigue siendo la única autoridad sobre el progreso.
+El navegador solo guarda un identificador de sesión, y de los sellos sin abrir no
+recibe ni el nombre.
 
 ---
 
 ## La subtrama: *El Registro Cero*
 
-Cinco etapas, quince preguntas especiales, construidas a partir de los hilos que la
+Cinco etapas, quince sellos que hay que descubrir hablando, construidos a partir de los hilos que la
 propia biblia de mundo deja abiertos: las preguntas finales de las fichas de Julio
 César, Tiberio, Livia Drusila, Diana y Lavinia; la mecánica del vino y la vid
 salvaje; la ficción de la arpía; la usurpación de Cassia Claudia; los bebés

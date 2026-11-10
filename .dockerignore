@@ -1,0 +1,33 @@
+# ── Nunca dentro de la imagen ────────────────────────────────────────────────
+# La clave de la API se inyecta como variable de entorno en tiempo de ejecución,
+# jamás horneada en una capa: cualquiera con la imagen podría leerla.
+.env
+.env.*
+
+# Sesiones y progreso de las jugadoras: viven en un volumen, no en la imagen.
+/data
+
+# ── Ruido que solo engorda la imagen o invalida la caché ─────────────────────
+node_modules
+npm-debug.log*
+*.log
+.git
+.gitignore
+.vscode
+.idea
+
+# Documentación y material de trabajo de la raíz.
+# OJO: la regla es `/*.md`, con barra inicial, NO `*.md`.
+# Los documentos de server/lore/*.md son el canon que el servidor lee al
+# arrancar; si se excluyen, MISAIAL se despierta sin memoria.
+/*.md
+/*.docx
+# El libro de arte pesa 181 MB: material de referencia, no de ejecución.
+# (Ojo: aquí los comentarios solo valen en su propia línea, nunca al final
+# de un patrón — ahí se tomarían como parte del propio patrón.)
+/*.pdf
+
+# Artefactos de contenedor
+Dockerfile
+.dockerignore
+docker-compose.yml

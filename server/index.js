@@ -16,6 +16,7 @@ import { canonCompleto } from './lore/index.js';
 import {
   autorizarPregunta,
   registrarRespuesta,
+  registrarDescubrimientos,
   vistaInvestigacion,
   investigacionAbierta,
 } from './narrativa/progresion.js';
@@ -154,7 +155,7 @@ app.post('/api/consulta', async (req, res) => {
   });
 
   try {
-    const { texto: respuesta } = await responder({
+    const { texto: respuesta, sellos } = await responder({
       progreso: sesion.progreso,
       historial,
       mensaje: texto,
@@ -164,18 +165,34 @@ app.post('/api/consulta', async (req, res) => {
       },
     });
 
+    // Dos caminos hacia el mismo sitio:
+    //   - `preguntaActiva`: disparo explícito por id (ya no lo usa la interfaz,
+    //     se mantiene para poder probar un sello concreto sin tener que dar con él).
+    //   - `sellos`: lo normal. El modelo ha reconocido que la conversación llegó
+    //     a un secreto y lo ha marcado. La progresión revalida cada id.
+    let abiertas = [];
+    let nuevaEtapa = null;
+
+    if (preguntaActiva) {
+      ({ nuevaEtapa } = registrarRespuesta(sesion, preguntaActiva));
+      abiertas = [preguntaActiva];
+    } else if (sellos?.length) {
+      ({ abiertas, nuevaEtapa } = registrarDescubrimientos(sesion, sellos));
+    }
+
     store.añadirMensaje(sesion, conv, {
       rol: 'misaial',
       texto: respuesta,
-      revelacion: preguntaActiva ? preguntaActiva.id : undefined,
+      revelacion: abiertas[0]?.id,
     });
 
     let avance = null;
-    if (preguntaActiva) {
-      const { nuevaEtapa } = registrarRespuesta(sesion, preguntaActiva);
+    if (abiertas.length) {
       const etapa = nuevaEtapa ? etapaPorId(nuevaEtapa) : null;
+      const ids = new Set(abiertas.map((p) => p.id));
       avance = {
-        codice: sesion.progreso.codice.at(-1) || null,
+        // Todas las entradas de códice que ha dejado ESTA respuesta, no solo la última.
+        codices: sesion.progreso.codice.filter((c) => ids.has(c.id)),
         nuevaEtapa: etapa
           ? { id: etapa.id, nombre: etapa.nombre, titulo: etapa.titulo, descripcion: etapa.descripcion }
           : null,
@@ -207,6 +224,15 @@ app.post('/api/consulta', async (req, res) => {
 
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Ruta no registrada.' });
+
+  // Un archivo que no existe —el logo aún sin colocar, por ejemplo— debe
+  // responder 404. Devolverle la página entera con estado 200 haría que el
+  // navegador recibiera HTML donde esperaba una imagen, y que las cachés
+  // intermedias guardaran esa respuesta como si fuera el recurso bueno.
+  if (/\.[a-z0-9]+$/i.test(req.path)) {
+    return res.status(404).type('txt').send('No encontrado.');
+  }
+
   res.sendFile(join(RAIZ, 'public', 'index.html'));
 });
 

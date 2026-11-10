@@ -73,6 +73,33 @@ export function autorizarPregunta(sesion, id) {
   return pregunta;
 }
 
+/**
+ * Registra los sellos que el modelo dice haber abierto en una respuesta.
+ *
+ * El modelo propone; el servidor dispone. Un id inventado, uno ya abierto o uno
+ * que todavía no está al alcance se descarta sin ruido: la autoridad sobre el
+ * progreso sigue estando aquí, no en el texto que devuelve la API.
+ *
+ * @returns {{abiertas: Array, nuevaEtapa: number|null}}
+ */
+export function registrarDescubrimientos(sesion, ids = []) {
+  const abiertas = [];
+  let nuevaEtapa = null;
+
+  for (const id of ids) {
+    const pregunta = preguntaPorId(id);
+    if (!pregunta) continue;
+    if (sesion.progreso.respondidas.includes(id)) continue;
+    if (!estaDisponible(pregunta, sesion.progreso)) continue;
+
+    const r = registrarRespuesta(sesion, pregunta);
+    if (r.nuevaEtapa) nuevaEtapa = r.nuevaEtapa;
+    abiertas.push(pregunta);
+  }
+
+  return { abiertas, nuevaEtapa };
+}
+
 /** Registra una pregunta como respondida y actualiza códice y etapa. */
 export function registrarRespuesta(sesion, pregunta) {
   const { progreso } = sesion;
@@ -95,7 +122,14 @@ export function registrarRespuesta(sesion, pregunta) {
 
 /**
  * Vista del estado de la investigación para el cliente.
- * Las preguntas bloqueadas se devuelven sin su texto: solo un sello.
+ *
+ * Es un REGISTRO DE LO DESCUBIERTO, no un menú. Solo existen dos estados:
+ * descubierta —y entonces viaja su título y la pregunta que lo abrió, como
+ * anotación de archivo— o sellada, y entonces no viaja absolutamente nada.
+ *
+ * El estado "disponible" ya no se expone a propósito: era precisamente lo que
+ * convertía el panel en una lista de lo que había que preguntar. Que un sello
+ * esté al alcance ahora solo lo sabe el prompt del modelo.
  */
 export function vistaInvestigacion(sesion) {
   const { progreso } = sesion;
@@ -104,15 +138,12 @@ export function vistaInvestigacion(sesion) {
   const etapas = ETAPAS.map((def) => {
     const desbloqueada = def.id <= progreso.etapa;
     const preguntas = preguntasDeEtapa(def.id).map((p) => {
-      const respondida = progreso.respondidas.includes(p.id);
-      const disponible = !respondida && estaDisponible(p, progreso);
-      const visible = respondida || disponible || desbloqueada;
+      const descubierta = progreso.respondidas.includes(p.id);
       return {
-        id: p.id,
-        estado: respondida ? 'respondida' : disponible ? 'disponible' : 'sellada',
-        // El texto solo viaja si el usuario puede verlo
-        titulo: visible ? p.titulo : null,
-        pregunta: respondida || disponible ? p.pregunta : null,
+        id: descubierta ? p.id : null,
+        estado: descubierta ? 'descubierta' : 'sellada',
+        titulo: descubierta ? p.titulo : null,
+        pregunta: descubierta ? p.pregunta : null,
       };
     });
     return {
@@ -122,7 +153,7 @@ export function vistaInvestigacion(sesion) {
       descripcion: desbloqueada ? def.descripcion : null,
       desbloqueada,
       preguntas,
-      completadas: preguntas.filter((p) => p.estado === 'respondida').length,
+      completadas: preguntas.filter((p) => p.estado === 'descubierta').length,
       total: preguntas.length,
     };
   });
@@ -134,6 +165,8 @@ export function vistaInvestigacion(sesion) {
       : Math.max(0, (ETAPAS[0].requiereMensajes ?? 0) - mensajesLibres(sesion)),
     etapa: progreso.etapa,
     etapasTotales: ETAPAS.length,
+    descubiertas: progreso.respondidas.length,
+    totalSellos: PREGUNTAS.length,
     etapas,
     codice: [...progreso.codice].sort((a, b) => a.descubierto - b.descubierto),
     completado:
